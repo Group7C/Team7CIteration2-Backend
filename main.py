@@ -1,7 +1,9 @@
 from flask import Flask
 import psycopg2
 
+
 app = Flask(__name__)
+
 
 # this gets the information so you are able to connect to the database
 def get_database_connection():
@@ -14,9 +16,11 @@ def get_database_connection():
 
     return conn
 
+
 # this uses connects to the database with the information provided
 def open_database_connection(connection):
     connection.cursor()
+
 
 # this closes the currently running database connection
 def close_database_connection(current_connection, database):
@@ -37,6 +41,8 @@ def checkUserExists():
 @app.route("/create/profile", methods=['GET'])
 def createProfile():
     return "<h1>creating user profile...<h1>"
+
+# use .execute() to handle sql query
 
 # THE COMMAND BELOW IS HOW TO RUN THE FILE
 # flask --app main run
