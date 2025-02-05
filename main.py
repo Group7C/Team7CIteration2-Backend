@@ -30,11 +30,11 @@ def close_database_connection(current_connection, database):
 def index():
     return "<h1>working<h1>"
 
-@app.route("/check/user/exists")
+@app.route("/check/user/exists", methods=['GET'])
 def checkUserExists():
     return "<h1>Checking if user exists...<h1>"
 
-@app.route("/create/profile")
+@app.route("/create/profile", methods=['GET'])
 def createProfile():
     return "<h1>creating user profile...<h1>"
 
