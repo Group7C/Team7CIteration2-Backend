@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 import psycopg2
 
 
@@ -36,7 +36,14 @@ def index():
 
 @app.route("/check/user/exists", methods=['GET'])
 def checkUserExists():
-    return "<h1>Checking if user exists...<h1>"
+    # inside the GET request, retrieve the username and email to check
+    # if the user exists or not
+
+    name = request.args.get('username')
+    email = request.args.get('email')
+
+    # testing to see if it works
+    return f"hi {name} with the email address {email}"
 
 @app.route("/create/profile", methods=['GET'])
 def createProfile():
