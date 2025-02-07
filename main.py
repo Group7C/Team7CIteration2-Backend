@@ -9,7 +9,7 @@ app = Flask(__name__)
 def get_database_connection():
     conn = psycopg2.connect(
         host="localhost",
-        database="software_engineering_iteration2",
+        database="team7db",
         user="admin",
         password="1234"
     )
