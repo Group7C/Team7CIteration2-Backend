@@ -42,26 +42,25 @@ def checkUserExists():
     name = request.args.get('username')
     email = request.args.get('email')
 
-    print(name, email)
-
     conn = get_database_connection()
     current = open_database_connection(conn)
     current.execute('SELECT COUNT(username) FROM online_user WHERE username = %s AND email = %s;', (name, email))
 
     # Since there can only be one user with the same username and email, it will either return 1 or 0
-    userExists = current.fetchall()
-
-    # print(userExists)
+    userExists = current.fetchall()[0][0]
 
     # Once the database has been checked, you can close the database connection
     close_database_connection(current, conn)
 
-    if userExists:
+    print(userExists, type(userExists))
+
+    # the return type cannot be a bool, hence why it is converted to a String!
+    if userExists == 1:
         # returns True if the user exists
-        return True
+        return str(True)
     else:
         # returns False is the user does not exist
-        return False
+        return str(False)
 
 @app.route("/create/profile", methods=['GET'])
 def createProfile():
