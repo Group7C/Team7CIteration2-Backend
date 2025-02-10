@@ -19,7 +19,7 @@ def get_database_connection():
 
 # this uses connects to the database with the information provided
 def open_database_connection(connection):
-    connection.cursor()
+    return connection.cursor()
 
 
 # this closes the currently running database connection
@@ -42,8 +42,26 @@ def checkUserExists():
     name = request.args.get('username')
     email = request.args.get('email')
 
-    # testing to see if it works
-    return f"hi {name} with the email address {email}"
+    print(name, email)
+
+    conn = get_database_connection()
+    current = open_database_connection(conn)
+    current.execute('SELECT COUNT(username) FROM online_user WHERE username = %s AND email = %s;', (name, email))
+
+    # Since there can only be one user with the same username and email, it will either return 1 or 0
+    userExists = current.fetchall()
+
+    # print(userExists)
+
+    # Once the database has been checked, you can close the database connection
+    close_database_connection(current, conn)
+
+    if userExists:
+        # returns True if the user exists
+        return True
+    else:
+        # returns False is the user does not exist
+        return False
 
 @app.route("/create/profile", methods=['GET'])
 def createProfile():
