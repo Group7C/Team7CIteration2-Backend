@@ -77,7 +77,7 @@ def createProfile():
     conn = get_database_connection()
     current = open_database_connection(conn)
 
-    # need to test insert query to ensure it works
+    # need to test insert query to ensure it works.
     current.execute('INSERT INTO ONLINE_USER (username, email, user_password, theme, profile_picture, currency_total, customize_settings) '
                     'VALUES'
                     ' (%s, %s, %s, Light, NULL, 0, '');', (username, email, password))
@@ -91,8 +91,30 @@ def createProfile():
 
     # the user does not need to retrieve anything from the db so the function does not need to return anything
 
+@app.route("/check/project/exists", methods=['GET'])
+def checkProjectExists():
 
-# use .execute() to handle sql query
+    # Since all projects have a unique uid, you can do a query to see if a project matches with the corresponding uid
+    # There will only be 1 or 0 projects with that uid
+    uid = request.args.get('uid')
+
+    conn = get_database_connection()
+    current = open_database_connection(conn)
+
+    # need to test to see if this query works
+    current.execute('SELECT COUNT(project_uid) FROM PROJECT WHERE project_uid = %s', (uid))
+
+    # will be an int with a value of 1 or 0
+    projectExists = current.fetchall()[0][0]
+
+    close_database_connection(current, conn)
+
+    if projectExists == 1:
+        # project exists
+        return str(True)
+    else:
+        # project does not exist
+        return str(False)
 
 # THE COMMAND BELOW IS HOW TO RUN THE FILE
 # flask --app main run
