@@ -1,6 +1,7 @@
 from flask import Flask, request
 import psycopg2
 
+from test_insert import current
 
 app = Flask(__name__)
 
@@ -64,7 +65,32 @@ def checkUserExists():
 
 @app.route("/create/profile", methods=['GET'])
 def createProfile():
-    return "<h1>creating user profile...<h1>"
+    # need to get the user information to create an insert in the database, specifically the ONLINE_USER table
+    username = request.args.get('username')
+    email = request.args.get('email')
+
+    # https is secure so the password should be fine to send over https as plaintext
+    # may have to consider salting and hashing the password before it is inserted into the
+    # database
+    password = request.args.get('password')
+
+    conn = get_database_connection()
+    current = open_database_connection(conn)
+
+    # need to test insert query to ensure it works
+    current.execute('INSERT INTO ONLINE_USER (username, email, user_password, theme, profile_picture, currency_total, customize_settings) '
+                    'VALUES'
+                    ' (%s, %s, %s, Light, NULL, 0, '');', (username, email, password))
+
+    # need to commit the changes to the database
+    # consider adding exceptions in case there are any errors
+    conn.commit()
+
+    # once the changes to the database have been made, you can close the database connection
+    close_database_connection(current, conn)
+
+    # the user does not need to retrieve anything from the db so the function does not need to return anything
+
 
 # use .execute() to handle sql query
 
