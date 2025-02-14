@@ -1,5 +1,6 @@
 from flask import Flask, request
 import psycopg2
+from credentials import ext_db_url
 
 from test_insert import current
 
@@ -8,12 +9,7 @@ app = Flask(__name__)
 
 # this gets the information so you are able to connect to the database
 def get_database_connection():
-    conn = psycopg2.connect(
-        host="localhost",
-        database="team7db",
-        user="admin",
-        password="1234"
-    )
+    conn = psycopg2.connect(ext_db_url)
 
     return conn
 
