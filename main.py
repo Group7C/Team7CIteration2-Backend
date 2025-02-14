@@ -76,7 +76,7 @@ def createProfile():
     # need to test insert query to ensure it works.
     current.execute('INSERT INTO ONLINE_USER (username, email, user_password, theme, profile_picture, currency_total, customize_settings) '
                     'VALUES'
-                    ' (%s, %s, %s, Light, NULL, 0, '');', (username, email, password))
+                    '(%s, %s, %s, %s, %s, %s, %s);', (username, email, password, 'Light', None, 0, ''))
 
     # need to commit the changes to the database
     # consider adding exceptions in case there are any errors
@@ -84,6 +84,8 @@ def createProfile():
 
     # once the changes to the database have been made, you can close the database connection
     close_database_connection(current, conn)
+
+    return "executed"
 
     # the user does not need to retrieve anything from the db so the function does not need to return anything
 
