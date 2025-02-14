@@ -89,6 +89,7 @@ def createProfile():
 
 @app.route("/check/project/exists", methods=['GET'])
 def checkProjectExists():
+    # THIS FUNCTION HAS NOT BEEN TESTED SO EXPECT SOME BUGS
 
     # Since all projects have a unique uid, you can do a query to see if a project matches with the corresponding uid
     # There will only be 1 or 0 projects with that uid
@@ -111,6 +112,51 @@ def checkProjectExists():
     else:
         # project does not exist
         return str(False)
+
+@app.route("/get/user/id", methods=['GET'])
+def getUserId():
+    # function will return the userid given a username and an email
+    # THIS FUNCTION HAS NOT BEEN TESTED SO EXPECT SOME BUGS
+
+    username = request.args.get('username')
+    email = request.args.get('email')
+
+    conn = get_database_connection()
+    current = open_database_connection(conn)
+
+    # need to test to see if this query works
+    current.execute('SELECT user_id FROM online_user WHERE username = %s AND email = %s;', (username, email))
+
+    # will return user id given a username
+    user_id = current.fetchall()[0][0]
+
+    close_database_connection(current, conn)
+
+    return user_id
+
+@app.route("/get/user/projects", methods=['GET'])
+def getUserProjects():
+    # this function will get the projects that a user is a part of using their uid
+    # THIS FUNCTION HAS NOT BEEN TESTED SO EXPECT SOME BUGS
+
+    user_id = request.args.get('user_id')
+
+    conn = get_database_connection()
+    current = open_database_connection(conn)
+
+    # need to test to see if this query works
+    current.execute('SELECT p.proj_name '
+                    'FROM online_user ou '
+                    'INNER JOIN user_project up ON ou.user_id = up.user_id '
+                    'INNER JOIN project p ON up.project_uid = p.project_uid '
+                    'WHERE ou.user_id = %s;', (user_id))
+
+    # will return the projects associated with the uid
+    user_id = current.fetchall()[0][0]
+
+    close_database_connection(current, conn)
+
+    return user_id
 
 # THE COMMAND BELOW IS HOW TO RUN THE FILE
 # flask --app main run
