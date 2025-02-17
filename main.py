@@ -1,11 +1,14 @@
 from flask import Flask, request
 import psycopg2
 from credentials import ext_db_url
-
+from flask_cors import CORS
 from test_insert import current
 
 app = Flask(__name__)
 
+# required to respond with CORS headers otherwise you will get 'failed to fetch' errors
+# when making a request
+CORS(app)
 
 # this gets the information so you are able to connect to the database
 def get_database_connection():
@@ -120,21 +123,24 @@ def getUserId():
     # function will return the userid given a username and an email
     # THIS FUNCTION HAS NOT BEEN TESTED SO EXPECT SOME BUGS
 
-    username = request.args.get('username')
     email = request.args.get('email')
+    #email = f"'{email}'"
+    print(email)
 
     conn = get_database_connection()
     current = open_database_connection(conn)
 
     # need to test to see if this query works
-    current.execute('SELECT user_id FROM online_user WHERE username = %s AND email = %s;', (username, email))
+    current.execute('SELECT user_id FROM online_user WHERE email = %s;', (email,))
+    #current.execute('SELECT * FROM online_user;')
 
     # will return user id given a username
     user_id = current.fetchall()[0][0]
+    print(user_id)
 
     close_database_connection(current, conn)
 
-    return user_id
+    return str(user_id)
 
 @app.route("/get/user/projects", methods=['GET'])
 def getUserProjects():
@@ -159,6 +165,58 @@ def getUserProjects():
     close_database_connection(current, conn)
 
     return user_id
+
+@app.route("/get/user/theme", methods=['GET'])
+def getUserTheme():
+    # function will return the user theme
+    # FUNCTION NEEDS TO BE TESTED
+
+    user_id = request.args.get('user_id')
+
+    conn = get_database_connection()
+    current = open_database_connection(conn)
+
+    current.execute('SELECT theme FROM online_user WHERE user_id = %s;', user_id)
+
+    # this will be the user's theme if they exist in the database
+    theme = current.fetchall()[0][0]
+
+    close_database_connection(current, conn)
+
+    return theme
+
+@app.route("/get/user/password", methods=['GET'])
+def getUserPassword():
+    # have to check to make sure the function works!
+    user_id = request.args.get('user_id')
+
+    conn = get_database_connection()
+    current = open_database_connection(conn)
+
+    current.execute('SELECT user_password FROM online_user WHERE user_id = %s;', user_id)
+
+    password = current.fetchall()[0][0]
+
+    close_database_connection(current, conn)
+
+    return password
+
+@app.route("/get/username", methods=['GET'])
+def getUsername():
+    # have to check to ensure function works!
+
+    email = request.args.get('email')
+
+    conn = get_database_connection()
+    current = open_database_connection(conn)
+
+    current.execute('SELECT username FROM online_user WHERE email = %s;', (email,))
+
+    username = current.fetchall()[0][0]
+
+    close_database_connection(current, conn)
+
+    return username
 
 # THE COMMAND BELOW IS HOW TO RUN THE FILE
 # flask --app main run
