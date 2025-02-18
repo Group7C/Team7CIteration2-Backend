@@ -39,12 +39,13 @@ def checkUserExists():
     # inside the GET request, retrieve the username and email to check
     # if the user exists or not
 
-    name = request.args.get('username')
     email = request.args.get('email')
+
+    print(email)
 
     conn = get_database_connection()
     current = open_database_connection(conn)
-    current.execute('SELECT COUNT(username) FROM online_user WHERE username = %s AND email = %s;', (name, email))
+    current.execute('SELECT COUNT(username) FROM online_user WHERE email = %s;', (email,))
 
     # Since there can only be one user with the same username and email, it will either return 1 or 0
     userExists = current.fetchall()[0][0]
@@ -55,7 +56,7 @@ def checkUserExists():
     print(userExists, type(userExists))
 
     # the return type cannot be a bool, hence why it is converted to a String!
-    if userExists == 1:
+    if userExists >= 1:
         # returns True if the user exists
         return str(True)
     else:
