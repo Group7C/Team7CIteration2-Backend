@@ -219,5 +219,23 @@ def getUsername():
 
     return username
 
+@app.route("/check/project/uuid/exists", methods=['GET'])
+def checkProjectUuidExists():
+    uuid = request.args.get('uuid')
+
+    conn = get_database_connection()
+    current = open_database_connection(conn)
+
+    current.execute('SELECT COUNT(proj_name) FROM project WHERE join_code = %s;', (uuid,))
+
+    # if the is 1 or more projects with the following uuid, then the uuid is already in use
+    numUuid = current.fetchall()[0][0]
+
+    close_database_connection(current, conn)
+
+    # if value greater than 0, then it exists
+    return numUuid
+
+
 # THE COMMAND BELOW IS HOW TO RUN THE FILE
 # flask --app main run
