@@ -191,10 +191,12 @@ def getUserPassword():
     # have to check to make sure the function works!
     user_id = request.args.get('user_id')
 
+    print(user_id)
+
     conn = get_database_connection()
     current = open_database_connection(conn)
 
-    current.execute('SELECT user_password FROM online_user WHERE user_id = %s;', user_id)
+    current.execute('SELECT user_password FROM online_user WHERE user_id = %s;', (user_id,))
 
     password = current.fetchall()[0][0]
 
@@ -223,10 +225,12 @@ def getUsername():
 def checkProjectUuidExists():
     uuid = request.args.get('uuid')
 
+    print(uuid, "is the uuid in here")
+
     conn = get_database_connection()
     current = open_database_connection(conn)
 
-    current.execute('SELECT COUNT(proj_name) FROM project WHERE join_code = %s;', (uuid,))
+    current.execute('SELECT COUNT(uuid) FROM project WHERE uuid = %s;', (uuid,))
 
     # if the is 1 or more projects with the following uuid, then the uuid is already in use
     numUuid = current.fetchall()[0][0]
@@ -234,7 +238,9 @@ def checkProjectUuidExists():
     close_database_connection(current, conn)
 
     # if value greater than 0, then it exists
-    return numUuid
+    return str(numUuid)
+
+
 
 
 # THE COMMAND BELOW IS HOW TO RUN THE FILE
