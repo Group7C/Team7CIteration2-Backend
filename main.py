@@ -241,6 +241,21 @@ def checkProjectUuidExists():
     return str(numUuid)
 
 
+@app.route("/upload/project", methods=['GET'])
+def uploadProject():
+
+    projectName = request.args.get('name')
+    joinCode = request.args.get('join')
+    dueDate = request.args.get('due')
+
+    conn = get_database_connection()
+    current = open_database_connection(conn)
+
+    current.execute('INSERT INTO PROJECT ()')
+
+    close_database_connection(current, conn)
+
+
 
 
 # THE COMMAND BELOW IS HOW TO RUN THE FILE
