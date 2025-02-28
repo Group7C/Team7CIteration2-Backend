@@ -12,7 +12,12 @@ CORS(app)
 
 # this gets the information so you are able to connect to the database
 def get_database_connection():
-    conn = psycopg2.connect(ext_db_url)
+    conn = psycopg2.connect(
+        host="localhost",
+        database="team7db",
+        user="admin",
+        password="1234"
+    )
 
     return conn
 
@@ -158,7 +163,7 @@ def getUserProjects():
                     'FROM online_user ou '
                     'INNER JOIN user_project up ON ou.user_id = up.user_id '
                     'INNER JOIN project p ON up.project_uid = p.project_uid '
-                    'WHERE ou.user_id = %s;', (user_id))
+                    'WHERE ou.user_id = %s;', (user_id,))
 
     # will return the projects associated with the uid
     user_id = current.fetchall()[0][0]
@@ -247,15 +252,80 @@ def uploadProject():
     projectName = request.args.get('name')
     joinCode = request.args.get('join')
     dueDate = request.args.get('due')
+    uuid = request.args.get('uuid')
+    userId = request.args.get('user_id')
 
     conn = get_database_connection()
     current = open_database_connection(conn)
 
-    current.execute('INSERT INTO PROJECT ()')
+    current.execute('INSERT INTO PROJECT (join_code, proj_name, deadline, notification_preference, google_drive_link, discord_link, uuid)'
+                    'VALUES'
+                    '(%s, %s, %s, %s, %s, %s, %s);', (joinCode, projectName, dueDate, 'Weekly', None, None, uuid))
+
+    conn.commit()
+
+    # now need to get project pk so can create insert into the intersection table
+
+    current.execute('SELECT project_uid FROM project WHERE uuid = %s;', (uuid,))
+
+    project_uid = current.fetchall()[0][0]
+
+    print("this is the project uid: ", project_uid)
+
+    current.execute('INSERT INTO user_project (user_id, project_uid) VALUES'
+                    '(%s, %s);', (userId, project_uid))
+
+    conn.commit()
 
     close_database_connection(current, conn)
 
+    return "executed"
 
+
+@app.route("/project/password/validation", methods=['GET'])
+def projectPasswordValid():
+
+    inputPassword = request.args.get('password')
+    uuid = request.args.get('uuid')
+
+    conn = get_database_connection()
+    current = open_database_connection(conn)
+
+    current.execute('SELECT COUNT(proj_name) FROM project WHERE uuid = %s AND join_code = %s;', (uuid, inputPassword))
+
+    # will have a value of 1 if there is a match
+    correct = current.fetchall()[0][0]
+
+    close_database_connection(current, conn)
+
+    return correct
+
+
+@app.route("/get/project/attributes", methods=['GET'])
+def getProjectAttributes():
+
+    projectUuid = request.args.get('uuid')
+    joinCode = request.args.get('password')
+
+    conn = get_database_connection()
+    current = open_database_connection(conn)
+
+    current.execute('SELECT (project_uid, notification_preference, proj_name, deadline, google_drive_link, discord_link)'
+                    'FROM project WHERE uuid = %s AND join_code = %s;', (projectUuid, joinCode))
+
+    # below converts the value to a list which can be returned
+    values = current.fetchall()[0][0].strip("()").split(",")
+
+    listValues = []
+
+    for value in values:
+        hasValue = value.strip()
+        if hasValue:
+            listValues.append(hasValue)
+        else:
+            listValues.append("Null")
+
+    return listValues
 
 
 # THE COMMAND BELOW IS HOW TO RUN THE FILE
