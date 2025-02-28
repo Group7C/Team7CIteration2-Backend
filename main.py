@@ -298,7 +298,7 @@ def projectPasswordValid():
 
     close_database_connection(current, conn)
 
-    return correct
+    return str(correct)
 
 
 @app.route("/get/project/attributes", methods=['GET'])
@@ -326,6 +326,37 @@ def getProjectAttributes():
             listValues.append("Null")
 
     return listValues
+
+@app.route("/get/project/id", methods=['GET'])
+def getProjectId():
+    # function will get the project id from the project's uuid
+
+    uuid = request.args.get('uuid')
+
+    conn = get_database_connection()
+    current = open_database_connection(conn)
+
+    current.execute('SELECT project_uid FROM project WHERE uuid = %s;', (uuid,))
+
+    values = current.fetchall()[0][0]
+
+    return str(values)
+
+@app.route("/user/in/project", methods=['GET'])
+def userInProject():
+    # function will check the intersection table to see if a user is in a project
+
+    userId = request.args.get('user_id')
+    projectId = request.args.get('project_id')
+
+    conn = get_database_connection()
+    current = open_database_connection(conn)
+
+    current.execute('SELECT COUNT(*) FROM user_project WHERE user_id = %s AND project_uid = %s;', (userId, projectId))
+
+    values = current.fetchall()[0][0]
+
+    return str(values)
 
 
 # THE COMMAND BELOW IS HOW TO RUN THE FILE
