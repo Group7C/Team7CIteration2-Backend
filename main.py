@@ -3,6 +3,7 @@ import psycopg2
 from credentials import ext_db_url
 from flask_cors import CORS
 from test_insert import current
+from unpacking import unpacking_list
 
 app = Flask(__name__)
 
@@ -166,11 +167,12 @@ def getUserProjects():
                     'WHERE ou.user_id = %s;', (user_id,))
 
     # will return the projects associated with the uid
-    user_id = current.fetchall()[0][0]
+    user_id = current.fetchall()
 
     close_database_connection(current, conn)
 
-    return user_id
+    # need to unpack the list
+    return unpacking_list(user_id)
 
 @app.route("/get/user/theme", methods=['GET'])
 def getUserTheme():
